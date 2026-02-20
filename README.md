@@ -151,7 +151,7 @@ Every decision tracked and explained:
 
 ```bash
 # Clone repository
-git clone https://github.com/YOUR_USERNAME/greenlight-ai.git
+git clone https://github.com/stevegeorge2002/greenlight-ai.git
 cd greenlight-ai
 
 # Install Python dependencies
@@ -515,7 +515,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 - **Website:** [greenlight-ai.demo](https://your-demo-url.com)
 - **Email:** greenlight@yourteam.com
-- **GitHub:** [github.com/yourusername/greenlight-ai](https://github.com/yourusername/greenlight-ai)
+- **GitHub:** [github.com/stevegeorge2002/greenlight-ai](https://github.com/stevegeorge2002/greenlight-ai)
 - **Demo Video:** [YouTube link]
 - **Pitch Deck:** [Google Slides link]
 
