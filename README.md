@@ -596,6 +596,6 @@ If you found this helpful, please **⭐ star this repo** on GitHub!
 
 *Predictive. Adaptive. Life-Saving.*
 
-Built with 💚 at AWS GenAI Agents Hackathon 2024
+Built with 💚 at AWS GenAI Agents Hackathon 2026
 
 </div>
