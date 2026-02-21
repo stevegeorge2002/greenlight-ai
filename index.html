@@ -1,0 +1,592 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🚦 GreenLight AI - Traffic Management</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: #0F172A;
+            color: white;
+            overflow-x: hidden;
+        }
+
+        /* Top Bar */
+        .top-bar {
+            background: #1E293B;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid #22C55E;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .logo-icon {
+            font-size: 2rem;
+            filter: drop-shadow(0 0 10px #22C55E);
+        }
+
+        .logo-text h1 {
+            font-size: 1.8rem;
+            color: #22C55E;
+            font-weight: 700;
+        }
+
+        .logo-text p {
+            font-size: 0.875rem;
+            color: #94A3B8;
+        }
+
+        .status {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            background: rgba(34, 197, 94, 0.1);
+            border-radius: 0.5rem;
+            border: 1px solid #22C55E;
+        }
+
+        .pulse {
+            width: 10px;
+            height: 10px;
+            background: #22C55E;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.5; transform: scale(1.2); }
+        }
+
+        .emergency-btn {
+            padding: 0.75rem 1.5rem;
+            background: #DC2626;
+            border: none;
+            border-radius: 0.5rem;
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            animation: pulse-red 2s infinite;
+        }
+
+        .emergency-btn:hover {
+            background: #B91C1C;
+            transform: scale(1.05);
+        }
+
+        @keyframes pulse-red {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(220, 38, 38, 0.7); }
+            50% { box-shadow: 0 0 0 10px rgba(220, 38, 38, 0); }
+        }
+
+        /* Main Grid */
+        .dashboard {
+            display: grid;
+            grid-template-columns: 300px 1fr 350px;
+            gap: 1.5rem;
+            padding: 1.5rem;
+            min-height: calc(100vh - 80px);
+        }
+
+        /* Panels */
+        .panel {
+            background: #1E293B;
+            border-radius: 1rem;
+            padding: 1.5rem;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+        }
+
+        .panel-header {
+            font-size: 1.25rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            color: #22C55E;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .badge {
+            background: #22C55E;
+            color: #0F172A;
+            padding: 0.25rem 0.75rem;
+            border-radius: 0.5rem;
+            font-size: 0.875rem;
+            font-weight: 700;
+        }
+
+        /* Left Panel - Intersections */
+        .intersection-stats {
+            display: grid;
+            gap: 0.75rem;
+            margin-bottom: 1rem;
+        }
+
+        .stat-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.75rem;
+            background: #0F172A;
+            border-radius: 0.5rem;
+        }
+
+        .stat-label {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .stat-value {
+            font-weight: 700;
+            font-size: 1.25rem;
+        }
+
+        /* Center Panel - Map */
+        .map-container {
+            background: #0F172A;
+            border-radius: 1rem;
+            padding: 2rem;
+            min-height: 400px;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .map-grid {
+            display: grid;
+            grid-template-columns: repeat(10, 1fr);
+            gap: 1rem;
+        }
+
+        .intersection-dot {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #22C55E;
+            box-shadow: 0 0 10px #22C55E;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .intersection-dot:hover {
+            transform: scale(1.5);
+            box-shadow: 0 0 20px #22C55E;
+        }
+
+        .intersection-dot.moderate {
+            background: #FBBF24;
+            box-shadow: 0 0 10px #FBBF24;
+        }
+
+        .prediction-banner {
+            margin-top: 1rem;
+            padding: 1rem;
+            background: rgba(6, 182, 212, 0.1);
+            border: 1px solid #06B6D4;
+            border-radius: 0.5rem;
+            text-align: center;
+        }
+
+        /* Right Panel - Impact */
+        .impact-grid {
+            display: grid;
+            gap: 1.5rem;
+        }
+
+        .impact-card {
+            background: #0F172A;
+            padding: 1rem;
+            border-radius: 0.75rem;
+            border-left: 4px solid #22C55E;
+        }
+
+        .impact-card h3 {
+            font-size: 0.875rem;
+            color: #94A3B8;
+            margin-bottom: 0.5rem;
+        }
+
+        .impact-card .value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #22C55E;
+        }
+
+        .impact-card .change {
+            font-size: 0.875rem;
+            color: #06B6D4;
+            margin-top: 0.25rem;
+        }
+
+        .ai-stats {
+            background: linear-gradient(135deg, #8B5CF6, #06B6D4);
+            padding: 1rem;
+            border-radius: 0.75rem;
+            margin-top: 1rem;
+        }
+
+        .ai-stats h3 {
+            margin-bottom: 0.75rem;
+        }
+
+        .stat-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.5rem 0;
+            border-bottom: 1px solid rgba(255,255,255,0.2);
+        }
+
+        .stat-row:last-child {
+            border-bottom: none;
+        }
+
+        /* Demo Controls */
+        .demo-controls {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            background: #1E293B;
+            padding: 1.5rem;
+            border-radius: 1rem;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+            border: 2px solid #22C55E;
+        }
+
+        .demo-controls h3 {
+            margin-bottom: 1rem;
+            color: #22C55E;
+        }
+
+        .demo-btn {
+            width: 100%;
+            padding: 0.75rem;
+            margin-bottom: 0.5rem;
+            background: #0F172A;
+            border: 1px solid #22C55E;
+            border-radius: 0.5rem;
+            color: white;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .demo-btn:hover {
+            background: #22C55E;
+            color: #0F172A;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(34, 197, 94, 0.4);
+        }
+
+        /* Toast Notification */
+        .toast {
+            position: fixed;
+            top: 100px;
+            right: 2rem;
+            background: #22C55E;
+            color: #0F172A;
+            padding: 1rem 1.5rem;
+            border-radius: 0.5rem;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            font-weight: 600;
+            transform: translateX(400px);
+            transition: transform 0.3s;
+            z-index: 1000;
+        }
+
+        .toast.show {
+            transform: translateX(0);
+        }
+
+        /* Loading */
+        .loading {
+            text-align: center;
+            padding: 2rem;
+            color: #94A3B8;
+        }
+
+        @media (max-width: 1200px) {
+            .dashboard {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Top Bar -->
+    <div class="top-bar">
+        <div class="logo">
+            <div class="logo-icon">🚦</div>
+            <div class="logo-text">
+                <h1>GreenLight AI</h1>
+                <p>Making Every Light Green</p>
+            </div>
+        </div>
+        <div class="status">
+            <div class="pulse"></div>
+            <span>All Systems Operational</span>
+        </div>
+        <button class="emergency-btn" onclick="showToast('🚨 Emergency mode activated!')">
+            🚨 EMERGENCY
+        </button>
+    </div>
+
+    <!-- Main Dashboard -->
+    <div class="dashboard">
+        <!-- Left Panel -->
+        <div class="panel">
+            <div class="panel-header">
+                Active Intersections
+                <span class="badge" id="total-count">100</span>
+            </div>
+            <div class="intersection-stats">
+                <div class="stat-item">
+                    <div class="stat-label">
+                        <span style="color: #22C55E;">●</span>
+                        Optimal
+                    </div>
+                    <div class="stat-value" id="optimal-count">92</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-label">
+                        <span style="color: #FBBF24;">●</span>
+                        Moderate
+                    </div>
+                    <div class="stat-value" id="moderate-count">8</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-label">
+                        <span style="color: #DC2626;">●</span>
+                        Congested
+                    </div>
+                    <div class="stat-value" id="congested-count">0</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Center Panel -->
+        <div>
+            <div class="panel">
+                <div class="panel-header">Live Traffic Map</div>
+                <div class="map-container">
+                    <div class="map-grid" id="map-grid">
+                        <!-- Generated by JS -->
+                    </div>
+                </div>
+                <div class="prediction-banner">
+                    🔮 PREDICTIONS: Concert ending in 30 min - Pre-adjusted ✅
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Panel -->
+        <div class="panel">
+            <div class="panel-header">Today's Impact</div>
+            <div class="impact-grid">
+                <div class="impact-card">
+                    <h3>⏱️ AVG COMMUTE</h3>
+                    <div class="value" id="avg-commute">18 min</div>
+                    <div class="change">↓ 7 min vs yesterday</div>
+                </div>
+
+                <div class="impact-card">
+                    <h3>🌍 CO2 SAVED</h3>
+                    <div class="value" id="co2-saved">3.2 tons</div>
+                    <div class="change">🌳 Environmental impact</div>
+                </div>
+
+                <div class="impact-card">
+                    <h3>🚗 VEHICLES MOVED</h3>
+                    <div class="value" id="vehicles">847,000</div>
+                    <div class="change">Today's throughput</div>
+                </div>
+
+                <div class="impact-card">
+                    <h3>🚑 EMERGENCIES</h3>
+                    <div class="value" id="emergencies">12</div>
+                    <div class="change">avg 3.4 min response</div>
+                </div>
+            </div>
+
+            <div class="ai-stats">
+                <h3>🤖 AI PERFORMANCE</h3>
+                <div class="stat-row">
+                    <span>Predictions</span>
+                    <span id="predictions">8,742</span>
+                </div>
+                <div class="stat-row">
+                    <span>Accuracy</span>
+                    <span id="accuracy">94.3%</span>
+                </div>
+                <div class="stat-row">
+                    <span>Decisions/sec</span>
+                    <span id="decisions">47</span>
+                </div>
+                <div class="stat-row">
+                    <span>Iterations</span>
+                    <span id="iterations">247</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Demo Controls -->
+    <div class="demo-controls">
+        <h3>🎮 DEMO MODE</h3>
+        <button class="demo-btn" onclick="runDemo('concert')">🏟️ Concert</button>
+        <button class="demo-btn" onclick="runDemo('emergency')">🚑 Emergency</button>
+        <button class="demo-btn" onclick="runDemo('rush-hour')">🌧️ Rush Hour</button>
+        <button class="demo-btn" onclick="runDemo('reset')">🔄 Reset</button>
+    </div>
+
+    <!-- Toast Notification -->
+    <div class="toast" id="toast"></div>
+
+    <script>
+        const API_URL = 'http://localhost:8000';
+
+        // Generate map dots
+        function generateMap() {
+            const grid = document.getElementById('map-grid');
+            for (let i = 0; i < 100; i++) {
+                const dot = document.createElement('div');
+                dot.className = 'intersection-dot';
+                if (Math.random() > 0.9) dot.classList.add('moderate');
+                dot.title = `INT-${String(i+1).padStart(3, '0')}`;
+                grid.appendChild(dot);
+            }
+        }
+
+        // Load metrics
+        async function loadMetrics() {
+            try {
+                const response = await fetch(`${API_URL}/api/metrics`);
+                const data = await response.json();
+                
+                // Update display
+                document.getElementById('vehicles').textContent = 
+                    data.daily_metrics.total_vehicles.toLocaleString();
+                document.getElementById('avg-commute').textContent = 
+                    Math.round(data.daily_metrics.avg_wait_time / 60) + ' min';
+                document.getElementById('co2-saved').textContent = 
+                    data.improvements.co2_saved_tons + ' tons';
+                
+                document.getElementById('predictions').textContent = 
+                    data.ai_stats.predictions_made.toLocaleString();
+                document.getElementById('accuracy').textContent = 
+                    data.ai_stats.accuracy + '%';
+                document.getElementById('decisions').textContent = 
+                    data.ai_stats.decisions_per_second;
+                document.getElementById('iterations').textContent = 
+                    data.ai_stats.learning_iterations;
+                    
+            } catch (error) {
+                console.error('Error loading metrics:', error);
+                showToast('⚠️ Backend offline - Make sure server is running');
+            }
+        }
+
+        // Load intersections
+        async function loadIntersections() {
+            try {
+                const response = await fetch(`${API_URL}/api/intersections`);
+                const data = await response.json();
+                
+                document.getElementById('total-count').textContent = 
+                    data.total_intersections;
+                document.getElementById('optimal-count').textContent = 
+                    data.status_breakdown.optimal;
+                document.getElementById('moderate-count').textContent = 
+                    data.status_breakdown.moderate;
+                document.getElementById('congested-count').textContent = 
+                    data.status_breakdown.congested;
+                    
+            } catch (error) {
+                console.error('Error loading intersections:', error);
+            }
+        }
+
+        // Run demo scenario
+        async function runDemo(scenario) {
+            try {
+                const response = await fetch(`${API_URL}/api/demo/${scenario}`, {
+                    method: 'POST'
+                });
+                const data = await response.json();
+                
+                // Show appropriate message
+                if (scenario === 'concert') {
+                    showToast('🏟️ Concert surge simulated! 73% congestion reduction');
+                } else if (scenario === 'emergency') {
+                    const eta = data.estimated_time_minutes || 3.4;
+                    const saved = data.comparison?.time_saved_minutes || 4.6;
+                    showToast(`🚑 Green corridor created! ETA: ${eta} min (Saved ${saved} min) - Life saved!`);
+                } else if (scenario === 'rush-hour') {
+                    showToast('🚗 Rush hour surge activated! Traffic increased 150%');
+                } else if (scenario === 'reset') {
+                    showToast('🔄 System reset to normal operation');
+                    loadMetrics();
+                    loadIntersections();
+                }
+                
+            } catch (error) {
+                console.error('Demo error:', error);
+                showToast('❌ Demo failed - Check backend connection');
+            }
+        }
+
+        // Show toast notification
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.classList.add('show');
+            
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 5000);
+        }
+
+        // Initialize on page load
+        window.onload = function() {
+            generateMap();
+            loadMetrics();
+            loadIntersections();
+            
+            // Refresh metrics every 10 seconds
+            setInterval(() => {
+                loadMetrics();
+                loadIntersections();
+            }, 10000);
+        };
+    </script>
+</body>
+</html>
+```
+
+**Save (Ctrl+S) and close.**
+
+---
+
+## 🌐 STEP 3: Test Frontend (30 seconds)
+
+**Open in browser:**
+```
+C:\Users\steve\Documents\GitHub\greenlight-ai\frontend\index.html
