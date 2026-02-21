@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🚦 GreenLight AI - Traffic Management</title>
+    <title>🚦 GreenLight AI - Live Traffic Control</title>
     <style>
         * {
             margin: 0;
@@ -12,7 +12,7 @@
         }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
             background: #0F172A;
             color: white;
             overflow-x: hidden;
@@ -20,13 +20,16 @@
 
         /* Top Bar */
         .top-bar {
-            background: #1E293B;
+            background: linear-gradient(135deg, #1E293B 0%, #0F172A 100%);
             padding: 1rem 2rem;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            border-bottom: 2px solid #22C55E;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+            border-bottom: 3px solid #22C55E;
+            box-shadow: 0 4px 20px rgba(34, 197, 94, 0.3);
+            position: sticky;
+            top: 0;
+            z-index: 100;
         }
 
         .logo {
@@ -36,73 +39,86 @@
         }
 
         .logo-icon {
-            font-size: 2rem;
-            filter: drop-shadow(0 0 10px #22C55E);
+            font-size: 2.5rem;
+            filter: drop-shadow(0 0 15px #22C55E);
+            animation: glow 2s ease-in-out infinite;
+        }
+
+        @keyframes glow {
+            0%, 100% { filter: drop-shadow(0 0 10px #22C55E); }
+            50% { filter: drop-shadow(0 0 25px #22C55E); }
         }
 
         .logo-text h1 {
-            font-size: 1.8rem;
-            color: #22C55E;
-            font-weight: 700;
+            font-size: 2rem;
+            background: linear-gradient(135deg, #22C55E, #06B6D4);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-weight: 800;
         }
 
         .logo-text p {
             font-size: 0.875rem;
             color: #94A3B8;
+            font-weight: 500;
         }
 
         .status {
             display: flex;
             align-items: center;
             gap: 0.5rem;
-            padding: 0.5rem 1rem;
-            background: rgba(34, 197, 94, 0.1);
-            border-radius: 0.5rem;
-            border: 1px solid #22C55E;
+            padding: 0.75rem 1.25rem;
+            background: rgba(34, 197, 94, 0.15);
+            border-radius: 0.75rem;
+            border: 2px solid #22C55E;
         }
 
         .pulse {
-            width: 10px;
-            height: 10px;
+            width: 12px;
+            height: 12px;
             background: #22C55E;
             border-radius: 50%;
-            animation: pulse 2s infinite;
+            animation: pulse 1.5s infinite;
+            box-shadow: 0 0 10px #22C55E;
         }
 
         @keyframes pulse {
             0%, 100% { opacity: 1; transform: scale(1); }
-            50% { opacity: 0.5; transform: scale(1.2); }
+            50% { opacity: 0.6; transform: scale(1.3); }
         }
 
         .emergency-btn {
-            padding: 0.75rem 1.5rem;
+            padding: 1rem 2rem;
             background: #DC2626;
             border: none;
-            border-radius: 0.5rem;
+            border-radius: 0.75rem;
             color: white;
-            font-weight: 600;
+            font-weight: 700;
+            font-size: 1rem;
             cursor: pointer;
             transition: all 0.3s;
             animation: pulse-red 2s infinite;
+            box-shadow: 0 4px 15px rgba(220, 38, 38, 0.4);
         }
 
         .emergency-btn:hover {
             background: #B91C1C;
-            transform: scale(1.05);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(220, 38, 38, 0.6);
         }
 
         @keyframes pulse-red {
             0%, 100% { box-shadow: 0 0 0 0 rgba(220, 38, 38, 0.7); }
-            50% { box-shadow: 0 0 0 10px rgba(220, 38, 38, 0); }
+            50% { box-shadow: 0 0 0 15px rgba(220, 38, 38, 0); }
         }
 
-        /* Main Grid */
+        /* Main Dashboard Grid */
         .dashboard {
             display: grid;
-            grid-template-columns: 300px 1fr 350px;
+            grid-template-columns: 320px 1fr 380px;
             gap: 1.5rem;
             padding: 1.5rem;
-            min-height: calc(100vh - 80px);
+            min-height: calc(100vh - 100px);
         }
 
         /* Panels */
@@ -110,17 +126,26 @@
             background: #1E293B;
             border-radius: 1rem;
             padding: 1.5rem;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+            box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+            border: 1px solid rgba(34, 197, 94, 0.2);
+            transition: all 0.3s;
+        }
+
+        .panel:hover {
+            border-color: #22C55E;
+            box-shadow: 0 8px 32px rgba(34, 197, 94, 0.2);
         }
 
         .panel-header {
             font-size: 1.25rem;
             font-weight: 700;
-            margin-bottom: 1rem;
+            margin-bottom: 1.5rem;
             color: #22C55E;
             display: flex;
             justify-content: space-between;
             align-items: center;
+            text-transform: uppercase;
+            letter-spacing: 1px;
         }
 
         .badge {
@@ -130,33 +155,63 @@
             border-radius: 0.5rem;
             font-size: 0.875rem;
             font-weight: 700;
+            animation: count-up 1s ease-out;
         }
 
-        /* Left Panel - Intersections */
+        @keyframes count-up {
+            from { transform: scale(0.8); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+
+        /* Left Panel - Stats */
         .intersection-stats {
             display: grid;
-            gap: 0.75rem;
-            margin-bottom: 1rem;
+            gap: 1rem;
         }
 
         .stat-item {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 0.75rem;
+            padding: 1rem;
             background: #0F172A;
-            border-radius: 0.5rem;
+            border-radius: 0.75rem;
+            border-left: 4px solid;
+            transition: all 0.3s;
+            cursor: pointer;
         }
+
+        .stat-item:hover {
+            transform: translateX(5px);
+            box-shadow: 0 4px 12px rgba(34, 197, 94, 0.3);
+        }
+
+        .stat-item.optimal { border-color: #22C55E; }
+        .stat-item.moderate { border-color: #FBBF24; }
+        .stat-item.congested { border-color: #DC2626; }
 
         .stat-label {
             display: flex;
             align-items: center;
-            gap: 0.5rem;
+            gap: 0.75rem;
+            font-weight: 500;
         }
+
+        .status-dot {
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+
+        .status-dot.green { background: #22C55E; box-shadow: 0 0 10px #22C55E; }
+        .status-dot.yellow { background: #FBBF24; box-shadow: 0 0 10px #FBBF24; }
+        .status-dot.red { background: #DC2626; box-shadow: 0 0 10px #DC2626; }
 
         .stat-value {
             font-weight: 700;
-            font-size: 1.25rem;
+            font-size: 1.75rem;
+            font-family: 'Courier New', monospace;
         }
 
         /* Center Panel - Map */
@@ -164,99 +219,192 @@
             background: #0F172A;
             border-radius: 1rem;
             padding: 2rem;
-            min-height: 400px;
+            min-height: 500px;
             position: relative;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            overflow: hidden;
         }
 
         .map-grid {
             display: grid;
             grid-template-columns: repeat(10, 1fr);
-            gap: 1rem;
+            gap: 1.5rem;
+            margin-bottom: 2rem;
         }
 
         .intersection-dot {
-            width: 20px;
-            height: 20px;
+            width: 24px;
+            height: 24px;
             border-radius: 50%;
             background: #22C55E;
-            box-shadow: 0 0 10px #22C55E;
+            box-shadow: 0 0 15px #22C55E;
             cursor: pointer;
             transition: all 0.3s;
+            position: relative;
+            animation: fade-in 0.5s ease-out;
+        }
+
+        @keyframes fade-in {
+            from { opacity: 0; transform: scale(0); }
+            to { opacity: 1; transform: scale(1); }
         }
 
         .intersection-dot:hover {
-            transform: scale(1.5);
-            box-shadow: 0 0 20px #22C55E;
+            transform: scale(1.8);
+            box-shadow: 0 0 30px #22C55E;
+            z-index: 10;
         }
 
         .intersection-dot.moderate {
             background: #FBBF24;
-            box-shadow: 0 0 10px #FBBF24;
+            box-shadow: 0 0 15px #FBBF24;
+        }
+
+        .intersection-dot.moderate:hover {
+            box-shadow: 0 0 30px #FBBF24;
+        }
+
+        .intersection-dot.congested {
+            background: #DC2626;
+            box-shadow: 0 0 15px #DC2626;
+            animation: blink 1s infinite;
+        }
+
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        /* Traffic flow animation */
+        .traffic-flow {
+            position: absolute;
+            width: 6px;
+            height: 6px;
+            background: #06B6D4;
+            border-radius: 50%;
+            animation: flow 3s linear infinite;
+            box-shadow: 0 0 8px #06B6D4;
+        }
+
+        @keyframes flow {
+            0% { transform: translate(0, 0); opacity: 0; }
+            10% { opacity: 1; }
+            90% { opacity: 1; }
+            100% { transform: translate(500px, 500px); opacity: 0; }
         }
 
         .prediction-banner {
-            margin-top: 1rem;
-            padding: 1rem;
-            background: rgba(6, 182, 212, 0.1);
-            border: 1px solid #06B6D4;
-            border-radius: 0.5rem;
+            margin-top: 1.5rem;
+            padding: 1.25rem;
+            background: linear-gradient(135deg, rgba(6, 182, 212, 0.2), rgba(34, 197, 94, 0.2));
+            border: 2px solid #06B6D4;
+            border-radius: 0.75rem;
             text-align: center;
+            font-weight: 600;
+            font-size: 1.1rem;
+            animation: slide-up 0.5s ease-out;
+        }
+
+        @keyframes slide-up {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
         /* Right Panel - Impact */
         .impact-grid {
             display: grid;
-            gap: 1.5rem;
+            gap: 1.25rem;
         }
 
         .impact-card {
-            background: #0F172A;
-            padding: 1rem;
-            border-radius: 0.75rem;
-            border-left: 4px solid #22C55E;
+            background: linear-gradient(135deg, #0F172A 0%, #1E293B 100%);
+            padding: 1.25rem;
+            border-radius: 0.875rem;
+            border-left: 5px solid #22C55E;
+            transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .impact-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, #22C55E, transparent);
+            animation: shimmer 2s infinite;
+        }
+
+        @keyframes shimmer {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+
+        .impact-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 24px rgba(34, 197, 94, 0.3);
         }
 
         .impact-card h3 {
-            font-size: 0.875rem;
+            font-size: 0.75rem;
             color: #94A3B8;
-            margin-bottom: 0.5rem;
+            margin-bottom: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
         }
 
         .impact-card .value {
-            font-size: 2rem;
-            font-weight: 700;
+            font-size: 2.5rem;
+            font-weight: 800;
             color: #22C55E;
+            font-family: 'Courier New', monospace;
+            line-height: 1;
+            margin-bottom: 0.5rem;
         }
 
         .impact-card .change {
             font-size: 0.875rem;
             color: #06B6D4;
-            margin-top: 0.25rem;
+            font-weight: 500;
         }
 
         .ai-stats {
-            background: linear-gradient(135deg, #8B5CF6, #06B6D4);
-            padding: 1rem;
-            border-radius: 0.75rem;
-            margin-top: 1rem;
+            background: linear-gradient(135deg, #8B5CF6 0%, #06B6D4 100%);
+            padding: 1.5rem;
+            border-radius: 1rem;
+            margin-top: 1.5rem;
+            box-shadow: 0 8px 24px rgba(139, 92, 246, 0.4);
         }
 
         .ai-stats h3 {
-            margin-bottom: 0.75rem;
+            margin-bottom: 1rem;
+            font-size: 1.1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
         }
 
         .stat-row {
             display: flex;
             justify-content: space-between;
-            padding: 0.5rem 0;
+            padding: 0.75rem 0;
             border-bottom: 1px solid rgba(255,255,255,0.2);
+            transition: all 0.3s;
+        }
+
+        .stat-row:hover {
+            background: rgba(255,255,255,0.1);
+            padding-left: 0.5rem;
         }
 
         .stat-row:last-child {
             border-bottom: none;
+        }
+
+        .stat-row .value {
+            font-weight: 700;
+            font-family: 'Courier New', monospace;
         }
 
         /* Demo Controls */
@@ -264,69 +412,240 @@
             position: fixed;
             bottom: 2rem;
             right: 2rem;
-            background: #1E293B;
+            background: linear-gradient(135deg, #1E293B, #0F172A);
             padding: 1.5rem;
             border-radius: 1rem;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+            box-shadow: 0 12px 40px rgba(0,0,0,0.6);
             border: 2px solid #22C55E;
+            z-index: 50;
+            animation: slide-in 0.5s ease-out;
+        }
+
+        @keyframes slide-in {
+            from { opacity: 0; transform: translateX(100px); }
+            to { opacity: 1; transform: translateX(0); }
         }
 
         .demo-controls h3 {
             margin-bottom: 1rem;
             color: #22C55E;
+            text-align: center;
+            font-size: 1.1rem;
         }
 
         .demo-btn {
             width: 100%;
-            padding: 0.75rem;
-            margin-bottom: 0.5rem;
+            padding: 0.875rem 1rem;
+            margin-bottom: 0.75rem;
             background: #0F172A;
-            border: 1px solid #22C55E;
-            border-radius: 0.5rem;
+            border: 2px solid #22C55E;
+            border-radius: 0.625rem;
             color: white;
             font-size: 1rem;
+            font-weight: 600;
             cursor: pointer;
             transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
         }
 
         .demo-btn:hover {
             background: #22C55E;
             color: #0F172A;
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(34, 197, 94, 0.4);
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(34, 197, 94, 0.5);
         }
 
-        /* Toast Notification */
+        .demo-btn:active {
+            transform: translateY(-1px);
+        }
+
+        .demo-btn.loading {
+            opacity: 0.6;
+            cursor: wait;
+        }
+
+        /* Toast */
         .toast {
             position: fixed;
             top: 100px;
             right: 2rem;
-            background: #22C55E;
-            color: #0F172A;
-            padding: 1rem 1.5rem;
-            border-radius: 0.5rem;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            background: linear-gradient(135deg, #22C55E, #06B6D4);
+            color: white;
+            padding: 1.25rem 1.75rem;
+            border-radius: 0.75rem;
+            box-shadow: 0 8px 32px rgba(34, 197, 94, 0.5);
             font-weight: 600;
-            transform: translateX(400px);
-            transition: transform 0.3s;
+            transform: translateX(500px);
+            transition: transform 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
             z-index: 1000;
+            max-width: 400px;
         }
 
         .toast.show {
             transform: translateX(0);
         }
 
-        /* Loading */
+        /* Live Counter Animation */
+        .counter {
+            display: inline-block;
+            min-width: 60px;
+            text-align: right;
+        }
+
+        /* Progress Bar */
+        .progress-bar {
+            width: 100%;
+            height: 6px;
+            background: rgba(34, 197, 94, 0.2);
+            border-radius: 3px;
+            overflow: hidden;
+            margin-top: 0.5rem;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #22C55E, #06B6D4);
+            border-radius: 3px;
+            transition: width 0.3s;
+            box-shadow: 0 0 10px #22C55E;
+        }
+
+        /* Real-time Chart */
+        .mini-chart {
+            height: 60px;
+            display: flex;
+            align-items: flex-end;
+            gap: 3px;
+            margin-top: 1rem;
+        }
+
+        .chart-bar {
+            flex: 1;
+            background: linear-gradient(180deg, #22C55E, #059669);
+            border-radius: 2px 2px 0 0;
+            transition: height 0.5s ease-out;
+            min-height: 4px;
+        }
+
+        /* Loading Animation */
         .loading {
             text-align: center;
             padding: 2rem;
             color: #94A3B8;
         }
 
-        @media (max-width: 1200px) {
+        .spinner {
+            border: 4px solid rgba(34, 197, 94, 0.2);
+            border-top: 4px solid #22C55E;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 1rem;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Emergency Mode Overlay */
+        .emergency-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(220, 38, 38, 0.9);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 200;
+            animation: fade-in-overlay 0.3s;
+        }
+
+        .emergency-overlay.active {
+            display: flex;
+        }
+
+        @keyframes fade-in-overlay {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .emergency-content {
+            background: #1E293B;
+            padding: 3rem;
+            border-radius: 1.5rem;
+            text-align: center;
+            max-width: 500px;
+            border: 3px solid #DC2626;
+        }
+
+        .emergency-content h2 {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .emergency-eta {
+            font-size: 4rem;
+            font-weight: 800;
+            color: #22C55E;
+            margin: 1rem 0;
+            font-family: 'Courier New', monospace;
+        }
+
+        .close-btn {
+            margin-top: 2rem;
+            padding: 1rem 2rem;
+            background: #22C55E;
+            border: none;
+            border-radius: 0.75rem;
+            color: #0F172A;
+            font-weight: 700;
+            cursor: pointer;
+            font-size: 1rem;
+        }
+
+        /* Responsive */
+        @media (max-width: 1400px) {
+            .dashboard {
+                grid-template-columns: 280px 1fr 320px;
+            }
+        }
+
+        @media (max-width: 1024px) {
             .dashboard {
                 grid-template-columns: 1fr;
             }
+            .demo-controls {
+                bottom: 1rem;
+                right: 1rem;
+                left: 1rem;
+            }
+        }
+
+        /* Live update indicator */
+        .live-indicator {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            background: rgba(220, 38, 38, 0.2);
+            border-radius: 0.5rem;
+            font-size: 0.875rem;
+            font-weight: 600;
+        }
+
+        .live-dot {
+            width: 8px;
+            height: 8px;
+            background: #DC2626;
+            border-radius: 50%;
+            animation: pulse 1s infinite;
         }
     </style>
 </head>
@@ -344,7 +663,7 @@
             <div class="pulse"></div>
             <span>All Systems Operational</span>
         </div>
-        <button class="emergency-btn" onclick="showToast('🚨 Emergency mode activated!')">
+        <button class="emergency-btn" onclick="activateEmergency()">
             🚨 EMERGENCY
         </button>
     </div>
@@ -358,26 +677,54 @@
                 <span class="badge" id="total-count">100</span>
             </div>
             <div class="intersection-stats">
-                <div class="stat-item">
+                <div class="stat-item optimal">
                     <div class="stat-label">
-                        <span style="color: #22C55E;">●</span>
+                        <span class="status-dot green"></span>
                         Optimal
                     </div>
-                    <div class="stat-value" id="optimal-count">92</div>
+                    <div class="stat-value">
+                        <span class="counter" id="optimal-count">92</span>
+                    </div>
                 </div>
-                <div class="stat-item">
+                <div class="stat-item moderate">
                     <div class="stat-label">
-                        <span style="color: #FBBF24;">●</span>
+                        <span class="status-dot yellow"></span>
                         Moderate
                     </div>
-                    <div class="stat-value" id="moderate-count">8</div>
+                    <div class="stat-value">
+                        <span class="counter" id="moderate-count">8</span>
+                    </div>
                 </div>
-                <div class="stat-item">
+                <div class="stat-item congested">
                     <div class="stat-label">
-                        <span style="color: #DC2626;">●</span>
+                        <span class="status-dot red"></span>
                         Congested
                     </div>
-                    <div class="stat-value" id="congested-count">0</div>
+                    <div class="stat-value">
+                        <span class="counter" id="congested-count">0</span>
+                    </div>
+                </div>
+            </div>
+
+            <div style="margin-top: 2rem; padding: 1rem; background: #0F172A; border-radius: 0.75rem;">
+                <h4 style="margin-bottom: 0.75rem; color: #94A3B8; font-size: 0.875rem;">SYSTEM PERFORMANCE</h4>
+                <div style="margin-bottom: 0.5rem;">
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 0.25rem;">
+                        <span style="font-size: 0.875rem;">Efficiency</span>
+                        <span style="font-weight: 700;">87%</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 87%"></div>
+                    </div>
+                </div>
+                <div>
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 0.25rem;">
+                        <span style="font-size: 0.875rem;">Uptime</span>
+                        <span style="font-weight: 700;">99.9%</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 99.9%"></div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -385,14 +732,28 @@
         <!-- Center Panel -->
         <div>
             <div class="panel">
-                <div class="panel-header">Live Traffic Map</div>
+                <div class="panel-header">
+                    Live Traffic Map
+                    <span class="live-indicator">
+                        <span class="live-dot"></span>
+                        LIVE
+                    </span>
+                </div>
                 <div class="map-container">
                     <div class="map-grid" id="map-grid">
                         <!-- Generated by JS -->
                     </div>
                 </div>
-                <div class="prediction-banner">
+                <div class="prediction-banner" id="prediction">
                     🔮 PREDICTIONS: Concert ending in 30 min - Pre-adjusted ✅
+                </div>
+            </div>
+
+            <!-- Mini Performance Chart -->
+            <div class="panel" style="margin-top: 1.5rem;">
+                <div class="panel-header">Traffic Flow (Last Hour)</div>
+                <div class="mini-chart" id="traffic-chart">
+                    <!-- Generated by JS -->
                 </div>
             </div>
         </div>
@@ -403,25 +764,33 @@
             <div class="impact-grid">
                 <div class="impact-card">
                     <h3>⏱️ AVG COMMUTE</h3>
-                    <div class="value" id="avg-commute">18 min</div>
+                    <div class="value">
+                        <span class="counter" id="avg-commute">18</span> min
+                    </div>
                     <div class="change">↓ 7 min vs yesterday</div>
                 </div>
 
                 <div class="impact-card">
                     <h3>🌍 CO2 SAVED</h3>
-                    <div class="value" id="co2-saved">3.2 tons</div>
+                    <div class="value">
+                        <span class="counter" id="co2-saved">3.2</span> tons
+                    </div>
                     <div class="change">🌳 Environmental impact</div>
                 </div>
 
                 <div class="impact-card">
                     <h3>🚗 VEHICLES MOVED</h3>
-                    <div class="value" id="vehicles">847,000</div>
+                    <div class="value">
+                        <span class="counter" id="vehicles">847,000</span>
+                    </div>
                     <div class="change">Today's throughput</div>
                 </div>
 
                 <div class="impact-card">
                     <h3>🚑 EMERGENCIES</h3>
-                    <div class="value" id="emergencies">12</div>
+                    <div class="value">
+                        <span class="counter" id="emergencies">12</span>
+                    </div>
                     <div class="change">avg 3.4 min response</div>
                 </div>
             </div>
@@ -430,19 +799,19 @@
                 <h3>🤖 AI PERFORMANCE</h3>
                 <div class="stat-row">
                     <span>Predictions</span>
-                    <span id="predictions">8,742</span>
+                    <span class="value counter" id="predictions">8,742</span>
                 </div>
                 <div class="stat-row">
                     <span>Accuracy</span>
-                    <span id="accuracy">94.3%</span>
+                    <span class="value"><span class="counter" id="accuracy">94.3</span>%</span>
                 </div>
                 <div class="stat-row">
                     <span>Decisions/sec</span>
-                    <span id="decisions">47</span>
+                    <span class="value counter" id="decisions">47</span>
                 </div>
                 <div class="stat-row">
                     <span>Iterations</span>
-                    <span id="iterations">247</span>
+                    <span class="value counter" id="iterations">247</span>
                 </div>
             </div>
         </div>
@@ -451,56 +820,139 @@
     <!-- Demo Controls -->
     <div class="demo-controls">
         <h3>🎮 DEMO MODE</h3>
-        <button class="demo-btn" onclick="runDemo('concert')">🏟️ Concert</button>
-        <button class="demo-btn" onclick="runDemo('emergency')">🚑 Emergency</button>
-        <button class="demo-btn" onclick="runDemo('rush-hour')">🌧️ Rush Hour</button>
-        <button class="demo-btn" onclick="runDemo('reset')">🔄 Reset</button>
+        <button class="demo-btn" id="btn-concert" onclick="runDemo('concert')">
+            🏟️ Concert Ending
+        </button>
+        <button class="demo-btn" id="btn-emergency" onclick="runDemo('emergency')">
+            🚑 Emergency Response
+        </button>
+        <button class="demo-btn" id="btn-rush" onclick="runDemo('rush-hour')">
+            🌧️ Rush Hour
+        </button>
+        <button class="demo-btn" id="btn-reset" onclick="runDemo('reset')">
+            🔄 Reset System
+        </button>
     </div>
 
     <!-- Toast Notification -->
     <div class="toast" id="toast"></div>
 
-    <script>
-        const API_URL = 'http://localhost:8000';
+    <!-- Emergency Overlay -->
+    <div class="emergency-overlay" id="emergency-overlay">
+        <div class="emergency-content">
+            <h2>🚑 EMERGENCY MODE</h2>
+            <p style="margin: 1rem 0; color: #94A3B8;">Creating green corridor...</p>
+            <div class="emergency-eta" id="emergency-eta">3.4</div>
+            <p style="font-size: 1.25rem; margin-bottom: 1rem;">minutes to hospital</p>
+            <p style="color: #22C55E; font-weight: 600;">✅ 4.6 minutes saved - Life saved!</p>
+            <button class="close-btn" onclick="closeEmergency()">Close</button>
+        </div>
+    </div>
 
-        // Generate map dots
+    <script>
+        const API_URL = window.location.hostname === 'localhost' 
+            ? 'http://localhost:8000' 
+            : 'https://greenlight-backend.onrender.com'; // Update with your Render URL
+
+        let updateInterval;
+        let chartData = Array(20).fill(0).map(() => Math.random() * 100);
+
+        // Generate interactive map
         function generateMap() {
             const grid = document.getElementById('map-grid');
+            grid.innerHTML = '';
+            
             for (let i = 0; i < 100; i++) {
                 const dot = document.createElement('div');
                 dot.className = 'intersection-dot';
-                if (Math.random() > 0.9) dot.classList.add('moderate');
-                dot.title = `INT-${String(i+1).padStart(3, '0')}`;
+                
+                const status = Math.random();
+                if (status > 0.92) {
+                    dot.classList.add('congested');
+                } else if (status > 0.85) {
+                    dot.classList.add('moderate');
+                }
+                
+                dot.title = `INT-${String(i+1).padStart(3, '0')}: ${dot.classList.contains('congested') ? 'Congested' : dot.classList.contains('moderate') ? 'Moderate' : 'Optimal'}`;
+                
+                // Stagger animation
+                dot.style.animationDelay = `${i * 0.01}s`;
+                
                 grid.appendChild(dot);
+            }
+            
+            // Add flowing traffic dots
+            addTrafficFlow();
+        }
+
+        function addTrafficFlow() {
+            const container = document.querySelector('.map-container');
+            for (let i = 0; i < 10; i++) {
+                setTimeout(() => {
+                    const flow = document.createElement('div');
+                    flow.className = 'traffic-flow';
+                    flow.style.left = Math.random() * 80 + '%';
+                    flow.style.top = Math.random() * 80 + '%';
+                    flow.style.animationDelay = `${Math.random() * 3}s`;
+                    container.appendChild(flow);
+                    
+                    setTimeout(() => flow.remove(), 3000);
+                }, i * 300);
             }
         }
 
-        // Load metrics
+        // Generate chart
+        function generateChart() {
+            const chart = document.getElementById('traffic-chart');
+            chart.innerHTML = '';
+            
+            chartData.forEach((value, i) => {
+                const bar = document.createElement('div');
+                bar.className = 'chart-bar';
+                bar.style.height = `${value}%`;
+                bar.style.animationDelay = `${i * 0.05}s`;
+                chart.appendChild(bar);
+            });
+        }
+
+        // Animate counter
+        function animateCounter(element, target) {
+            const current = parseInt(element.textContent.replace(/,/g, '')) || 0;
+            const increment = (target - current) / 20;
+            let count = current;
+            
+            const timer = setInterval(() => {
+                count += increment;
+                if ((increment > 0 && count >= target) || (increment < 0 && count <= target)) {
+                    element.textContent = target.toLocaleString();
+                    clearInterval(timer);
+                } else {
+                    element.textContent = Math.round(count).toLocaleString();
+                }
+            }, 50);
+        }
+
+        // Load metrics from API
         async function loadMetrics() {
             try {
                 const response = await fetch(`${API_URL}/api/metrics`);
                 const data = await response.json();
                 
-                // Update display
-                document.getElementById('vehicles').textContent = 
-                    data.daily_metrics.total_vehicles.toLocaleString();
-                document.getElementById('avg-commute').textContent = 
-                    Math.round(data.daily_metrics.avg_wait_time / 60) + ' min';
-                document.getElementById('co2-saved').textContent = 
-                    data.improvements.co2_saved_tons + ' tons';
+                // Animate counters
+                animateCounter(document.getElementById('vehicles'), data.daily_metrics.total_vehicles);
+                animateCounter(document.getElementById('predictions'), data.ai_stats.predictions_made);
                 
-                document.getElementById('predictions').textContent = 
-                    data.ai_stats.predictions_made.toLocaleString();
-                document.getElementById('accuracy').textContent = 
-                    data.ai_stats.accuracy + '%';
-                document.getElementById('decisions').textContent = 
-                    data.ai_stats.decisions_per_second;
-                document.getElementById('iterations').textContent = 
-                    data.ai_stats.learning_iterations;
-                    
+                // Update other values
+                document.getElementById('co2-saved').textContent = data.improvements.co2_saved_tons;
+                document.getElementById('accuracy').textContent = data.ai_stats.accuracy;
+                document.getElementById('decisions').textContent = data.ai_stats.decisions_per_second;
+                document.getElementById('iterations').textContent = data.ai_stats.learning_iterations;
+                document.getElementById('emergencies').textContent = 12;
+                document.getElementById('avg-commute').textContent = 18;
+                
             } catch (error) {
                 console.error('Error loading metrics:', error);
-                showToast('⚠️ Backend offline - Make sure server is running');
+                showToast('⚠️ Using demo mode - Backend offline');
             }
         }
 
@@ -510,15 +962,11 @@
                 const response = await fetch(`${API_URL}/api/intersections`);
                 const data = await response.json();
                 
-                document.getElementById('total-count').textContent = 
-                    data.total_intersections;
-                document.getElementById('optimal-count').textContent = 
-                    data.status_breakdown.optimal;
-                document.getElementById('moderate-count').textContent = 
-                    data.status_breakdown.moderate;
-                document.getElementById('congested-count').textContent = 
-                    data.status_breakdown.congested;
-                    
+                animateCounter(document.getElementById('total-count'), data.total_intersections);
+                animateCounter(document.getElementById('optimal-count'), data.status_breakdown.optimal);
+                animateCounter(document.getElementById('moderate-count'), data.status_breakdown.moderate);
+                animateCounter(document.getElementById('congested-count'), data.status_breakdown.congested);
+                
             } catch (error) {
                 console.error('Error loading intersections:', error);
             }
@@ -526,34 +974,61 @@
 
         // Run demo scenario
         async function runDemo(scenario) {
+            const button = document.getElementById(`btn-${scenario}`);
+            button.classList.add('loading');
+            button.disabled = true;
+            
             try {
                 const response = await fetch(`${API_URL}/api/demo/${scenario}`, {
-                    method: 'POST'
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' }
                 });
                 const data = await response.json();
                 
-                // Show appropriate message
+                // Update UI based on scenario
                 if (scenario === 'concert') {
-                    showToast('🏟️ Concert surge simulated! 73% congestion reduction');
+                    showToast('🏟️ Concert surge simulated! 50,000 people leaving stadium. Pre-adjusted 15 intersections. 73% congestion reduction!');
+                    updatePrediction('Concert traffic surge active - AI optimizing flow');
+                    
+                    // Animate some dots to red
+                    const dots = document.querySelectorAll('.intersection-dot');
+                    for (let i = 0; i < 15; i++) {
+                        dots[i].classList.add('congested');
+                    }
+                    
                 } else if (scenario === 'emergency') {
                     const eta = data.estimated_time_minutes || 3.4;
                     const saved = data.comparison?.time_saved_minutes || 4.6;
-                    showToast(`🚑 Green corridor created! ETA: ${eta} min (Saved ${saved} min) - Life saved!`);
+                    
+                    showToast(`🚑 Green corridor created! Ambulance ETA: ${eta} min (Saved ${saved} min)`);
+                    activateEmergency(eta);
+                    updatePrediction('Emergency vehicle priority - Green corridor active');
+                    
                 } else if (scenario === 'rush-hour') {
-                    showToast('🚗 Rush hour surge activated! Traffic increased 150%');
+                    showToast('🚗 Rush hour activated! Traffic volume +150%. AI adjusting signals in real-time.');
+                    updatePrediction('Rush hour mode - Dynamic optimization active');
+                    
                 } else if (scenario === 'reset') {
                     showToast('🔄 System reset to normal operation');
+                    updatePrediction('Normal operation - Predictive mode active');
+                    generateMap(); // Regenerate map
                     loadMetrics();
                     loadIntersections();
                 }
                 
+                // Update chart
+                updateChart();
+                
             } catch (error) {
                 console.error('Demo error:', error);
-                showToast('❌ Demo failed - Check backend connection');
+                showToast('❌ Demo failed - Using offline mode');
+            } finally {
+                button.classList.remove('loading');
+                button.disabled = false;
             }
         }
 
-        // Show toast notification
+        // Show toast
         function showToast(message) {
             const toast = document.getElementById('toast');
             toast.textContent = message;
@@ -564,29 +1039,107 @@
             }, 5000);
         }
 
-        // Initialize on page load
-        window.onload = function() {
-            generateMap();
-            loadMetrics();
-            loadIntersections();
+        // Update prediction banner
+        function updatePrediction(text) {
+            const banner = document.getElementById('prediction');
+            banner.textContent = `🔮 ${text}`;
+            banner.style.animation = 'none';
+            setTimeout(() => {
+                banner.style.animation = 'slide-up 0.5s ease-out';
+            }, 10);
+        }
+
+        // Activate emergency overlay
+        function activateEmergency(eta = 3.4) {
+            const overlay = document.getElementById('emergency-overlay');
+            const etaDisplay = document.getElementById('emergency-eta');
+            overlay.classList.add('active');
             
-            // Refresh metrics every 10 seconds
+            // Countdown animation
+            let time = eta;
+            etaDisplay.textContent = time.toFixed(1);
+            
+            const countdown = setInterval(() => {
+                time -= 0.1;
+                if (time <= 0) {
+                    clearInterval(countdown);
+                    etaDisplay.textContent = '0.0';
+                } else {
+                    etaDisplay.textContent = time.toFixed(1);
+                }
+            }, 100);
+        }
+
+        function closeEmergency() {
+            document.getElementById('emergency-overlay').classList.remove('active');
+        }
+
+        // Update chart
+        function updateChart() {
+            chartData.shift();
+            chartData.push(Math.random() * 100);
+            generateChart();
+        }
+
+        // Real-time updates
+        function startRealTimeUpdates() {
+            // Update chart every 2 seconds
+            setInterval(() => {
+                updateChart();
+            }, 2000);
+            
+            // Update metrics every 5 seconds
             setInterval(() => {
                 loadMetrics();
                 loadIntersections();
+            }, 5000);
+            
+            // Add traffic flow animation every 3 seconds
+            setInterval(() => {
+                addTrafficFlow();
+            }, 3000);
+            
+            // Simulate random changes
+            setInterval(() => {
+                const predictions = [
+                    '🔮 Normal traffic flow - All systems optimal',
+                    '🔮 Light rain predicted - Adjusting timing +10%',
+                    '🔮 Concert ending soon - Pre-optimizing exit routes',
+                    '🔮 Rush hour approaching - Preparing corridor adjustments'
+                ];
+                
+                if (Math.random() > 0.8) {
+                    updatePrediction(predictions[Math.floor(Math.random() * predictions.length)]);
+                }
             }, 10000);
+        }
+
+        // Initialize
+        window.onload = function() {
+            console.log('🚦 GreenLight AI Dashboard Initializing...');
+            
+            generateMap();
+            generateChart();
+            loadMetrics();
+            loadIntersections();
+            startRealTimeUpdates();
+            
+            console.log('✅ Dashboard Ready!');
+            showToast('✅ GreenLight AI Dashboard Online');
         };
+
+        // Simulate live data updates
+        setInterval(() => {
+            // Randomly update a few intersection statuses
+            const dots = document.querySelectorAll('.intersection-dot');
+            const randomDot = dots[Math.floor(Math.random() * dots.length)];
+            
+            if (Math.random() > 0.7) {
+                randomDot.classList.remove('moderate', 'congested');
+            } else if (Math.random() > 0.9) {
+                randomDot.classList.add('moderate');
+            }
+        }, 3000);
     </script>
 </body>
 </html>
-```
-
-**Save (Ctrl+S) and close.**
-
----
-
-## 🌐 STEP 3: Test Frontend (30 seconds)
-
-**Open in browser:**
-```
-C:\Users\steve\Documents\GitHub\greenlight-ai\frontend\index.html
